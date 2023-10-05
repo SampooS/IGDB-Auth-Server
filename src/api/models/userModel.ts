@@ -23,6 +23,16 @@ const userModel = new mongoose.Schema<User>({
     type: String,
     required: true,
   },
+  profile_image: {
+    type: String,
+    default: 'https://i.imgur.com/2WZtVXx.png',
+  },
+  favourite_games: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Game',
+    },
+  ],
 });
 
 // Duplicate the ID field.

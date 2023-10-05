@@ -48,7 +48,7 @@ const loginPost = async (
       user: {
         user_name: user.user_name,
         email: user.email,
-        favourite_games: user.favourite_games,
+        favourite_games: user.favourite_games || [],
         profile_image: user.profile_image,
         id: user._id,
       },

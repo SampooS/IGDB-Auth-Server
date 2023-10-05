@@ -70,7 +70,7 @@ const userPost = async (
       user: {
         user_name: newUser.user_name,
         email: newUser.email,
-        favourite_games: newUser.favourite_games,
+        favourite_games: newUser.favourite_games || [],
         profile_image: newUser.profile_image,
         id: newUser._id,
       },
@@ -95,8 +95,6 @@ const userPut = async (req: Request, res: Response, next: NextFunction) => {
     if (user.password) {
       user.password = await bcrypt.hash(user.password, salt);
     }
-
-    console.log('I am user__', user);
     const result: User = (await userModel
       .findByIdAndUpdate(userId, user, {new: true})
       .select('-password -role')) as User;
@@ -105,14 +103,12 @@ const userPut = async (req: Request, res: Response, next: NextFunction) => {
       next(new CustomError('User not found', 404));
       return;
     }
-
-    console.log('This from UserPut', result);
     const response: DBMessageResponse = {
       message: 'User updated',
       user: {
         user_name: result.user_name,
         email: result.email,
-        favourite_games: result.favourite_games,
+        favourite_games: result.favourite_games || [],
         profile_image: result.profile_image,
         id: result._id,
       },
@@ -218,7 +214,7 @@ const userPutAsAdmin = async (
       user: {
         user_name: result.user_name,
         email: result.email,
-        favourite_games: result.favourite_games,
+        favourite_games: result.favourite_games || [],
         profile_image: result.profile_image,
         id: result._id,
       },
