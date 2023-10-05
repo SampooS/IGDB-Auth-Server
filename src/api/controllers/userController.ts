@@ -111,42 +111,6 @@ const userPut = async (req: Request, res: Response, next: NextFunction) => {
         favourite_games: result.favourite_games || [],
         profile_image: result.profile_image,
         id: result._id,
-        profile_image: result.profile_image,
-      },
-    };
-
-    res.json(response);
-  } catch (error) {
-    next(new CustomError((error as Error).message, 500));
-  }
-};
-
-// TODO: add function to change user name
-const userNamePut = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const userFromToken: OutputUser = res.locals.user as OutputUser;
-    let userId = userFromToken.id;
-    if (req.params.id && res.locals.user.role.includes('admin')) {
-      userId = req.params.id;
-    }
-
-    const user: User = req.body as User;
-
-    const result: User = (await userModel
-      .findByIdAndUpdate(userId, user, {new: true})
-      .select('-password -role')) as User;
-
-    if (!result) {
-      next(new CustomError('User not found', 404));
-      return;
-    }
-
-    const response: DBMessageResponse = {
-      message: 'Username updated',
-      user: {
-        user_name: result.user_name,
-        email: result.email,
-        id: result._id,
       },
     };
 
