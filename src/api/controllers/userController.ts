@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import {Request, Response, NextFunction} from 'express';
 import CustomError from '../../classes/CustomError';
-import { User, OutputUser } from '../../interfaces/User';
-import { validationResult } from 'express-validator';
+import {User, OutputUser} from '../../interfaces/User';
+import {validationResult} from 'express-validator';
 import userModel from '../models/userModel';
 import bcrypt from 'bcrypt';
 import DBMessageResponse from '../../interfaces/DBMessageResponse';
@@ -9,7 +9,7 @@ import DBMessageResponse from '../../interfaces/DBMessageResponse';
 const salt = bcrypt.genSaltSync(12);
 // TODO: add function check, to check if the server is alive
 const check = (req: Request, res: Response) => {
-  res.json({ message: 'Server up' });
+  res.json({message: 'Server up'});
 };
 
 // TODO: add function to get all users
@@ -24,7 +24,7 @@ const userListGet = async (req: Request, res: Response, next: NextFunction) => {
 
 // TODO: add function to get a user by id
 const userGet = async (
-  req: Request<{ id: String }>,
+  req: Request<{id: String}>,
   res: Response,
   next: NextFunction
 ) => {
@@ -70,6 +70,8 @@ const userPost = async (
       user: {
         user_name: newUser.user_name,
         email: newUser.email,
+        favourite_games: newUser.favourite_games,
+        profile_image: newUser.profile_image,
         id: newUser._id,
       },
     };
@@ -94,8 +96,9 @@ const userPut = async (req: Request, res: Response, next: NextFunction) => {
       user.password = await bcrypt.hash(user.password, salt);
     }
 
+    console.log('I am user__', user);
     const result: User = (await userModel
-      .findByIdAndUpdate(userId, user, { new: true })
+      .findByIdAndUpdate(userId, user, {new: true})
       .select('-password -role')) as User;
 
     if (!result) {
@@ -103,11 +106,14 @@ const userPut = async (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
+    console.log('This from UserPut', result);
     const response: DBMessageResponse = {
       message: 'User updated',
       user: {
         user_name: result.user_name,
         email: result.email,
+        favourite_games: result.favourite_games,
+        profile_image: result.profile_image,
         id: result._id,
       },
     };
@@ -134,6 +140,8 @@ const userDelete = async (req: Request, res: Response, next: NextFunction) => {
       user: {
         user_name: result.user_name,
         email: result.email,
+        profile_image: '',
+        favourite_games: [],
         id: result._id,
       },
     };
@@ -168,6 +176,8 @@ const userDeleteAsAdmin = async (
       user: {
         user_name: result.user_name,
         email: result.email,
+        profile_image: '',
+        favourite_games: [],
         id: result._id,
       },
     };
@@ -196,7 +206,7 @@ const userPutAsAdmin = async (
     }
 
     const result: User = (await userModel
-      .findByIdAndUpdate(userId, user, { new: true })
+      .findByIdAndUpdate(userId, user, {new: true})
       .select('-password -role')) as User;
     if (!result) {
       next(new CustomError('User not found', 404));
@@ -208,6 +218,8 @@ const userPutAsAdmin = async (
       user: {
         user_name: result.user_name,
         email: result.email,
+        favourite_games: result.favourite_games,
+        profile_image: result.profile_image,
         id: result._id,
       },
     };

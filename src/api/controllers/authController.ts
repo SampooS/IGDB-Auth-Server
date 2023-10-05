@@ -1,14 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
+import {Request, Response, NextFunction} from 'express';
 import CustomError from '../../classes/CustomError';
-import { User } from '../../interfaces/User';
-import { validationResult } from 'express-validator';
+import {User} from '../../interfaces/User';
+import {validationResult} from 'express-validator';
 import userModel from '../models/userModel';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import LoginMessageResponse from '../../interfaces/LoginMessageResponse';
 
 const loginPost = async (
-  req: Request<{}, {}, { email: string; password: string }>,
+  req: Request<{}, {}, {email: string; password: string}>,
   res: Response,
   next: NextFunction
 ) => {
@@ -24,9 +24,9 @@ const loginPost = async (
       return;
     }
 
-    const { email, password } = req.body;
+    const {email, password} = req.body;
 
-    const user = (await userModel.findOne({ email: email })) as User;
+    const user = (await userModel.findOne({email: email})) as User;
 
     if (!user) {
       next(new CustomError('Incorrect username/password', 403));
@@ -39,7 +39,7 @@ const loginPost = async (
     }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      {id: user._id, role: user.role},
       process.env.JWT_SECRET as string
     );
 
@@ -48,6 +48,8 @@ const loginPost = async (
       user: {
         user_name: user.user_name,
         email: user.email,
+        favourite_games: user.favourite_games,
+        profile_image: user.profile_image,
         id: user._id,
       },
       token: token,
@@ -59,4 +61,4 @@ const loginPost = async (
   }
 };
 
-export { loginPost };
+export {loginPost};
