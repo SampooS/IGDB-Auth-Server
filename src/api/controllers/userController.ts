@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import {Request, Response, NextFunction} from 'express';
 import CustomError from '../../classes/CustomError';
-import { User, OutputUser } from '../../interfaces/User';
-import { validationResult } from 'express-validator';
+import {User, OutputUser} from '../../interfaces/User';
+import {validationResult} from 'express-validator';
 import userModel from '../models/userModel';
 import bcrypt from 'bcrypt';
 import DBMessageResponse from '../../interfaces/DBMessageResponse';
@@ -9,7 +9,7 @@ import DBMessageResponse from '../../interfaces/DBMessageResponse';
 const salt = bcrypt.genSaltSync(12);
 // TODO: add function check, to check if the server is alive
 const check = (req: Request, res: Response) => {
-  res.json({ message: 'Server up' });
+  res.json({message: 'Server up'});
 };
 
 // TODO: add function to get all users
@@ -24,7 +24,7 @@ const userListGet = async (req: Request, res: Response, next: NextFunction) => {
 
 // TODO: add function to get a user by id
 const userGet = async (
-  req: Request<{ id: String }>,
+  req: Request<{id: String}>,
   res: Response,
   next: NextFunction
 ) => {
@@ -95,7 +95,7 @@ const userPut = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const result: User = (await userModel
-      .findByIdAndUpdate(userId, user, { new: true })
+      .findByIdAndUpdate(userId, user, {new: true})
       .select('-password -role')) as User;
 
     if (!result) {
@@ -105,6 +105,42 @@ const userPut = async (req: Request, res: Response, next: NextFunction) => {
 
     const response: DBMessageResponse = {
       message: 'User updated',
+      user: {
+        user_name: result.user_name,
+        email: result.email,
+        id: result._id,
+        profile_image: result.profile_image,
+      },
+    };
+
+    res.json(response);
+  } catch (error) {
+    next(new CustomError((error as Error).message, 500));
+  }
+};
+
+// TODO: add function to change user name
+const userNamePut = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userFromToken: OutputUser = res.locals.user as OutputUser;
+    let userId = userFromToken.id;
+    if (req.params.id && res.locals.user.role.includes('admin')) {
+      userId = req.params.id;
+    }
+
+    const user: User = req.body as User;
+
+    const result: User = (await userModel
+      .findByIdAndUpdate(userId, user, {new: true})
+      .select('-password -role')) as User;
+
+    if (!result) {
+      next(new CustomError('User not found', 404));
+      return;
+    }
+
+    const response: DBMessageResponse = {
+      message: 'Username updated',
       user: {
         user_name: result.user_name,
         email: result.email,
@@ -196,7 +232,7 @@ const userPutAsAdmin = async (
     }
 
     const result: User = (await userModel
-      .findByIdAndUpdate(userId, user, { new: true })
+      .findByIdAndUpdate(userId, user, {new: true})
       .select('-password -role')) as User;
     if (!result) {
       next(new CustomError('User not found', 404));
