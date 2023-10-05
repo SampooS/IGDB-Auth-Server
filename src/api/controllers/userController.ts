@@ -70,6 +70,8 @@ const userPost = async (
       user: {
         user_name: newUser.user_name,
         email: newUser.email,
+        favourite_games: newUser.favourite_games || [],
+        profile_image: newUser.profile_image,
         id: newUser._id,
       },
     };
@@ -93,7 +95,6 @@ const userPut = async (req: Request, res: Response, next: NextFunction) => {
     if (user.password) {
       user.password = await bcrypt.hash(user.password, salt);
     }
-
     const result: User = (await userModel
       .findByIdAndUpdate(userId, user, {new: true})
       .select('-password -role')) as User;
@@ -102,48 +103,13 @@ const userPut = async (req: Request, res: Response, next: NextFunction) => {
       next(new CustomError('User not found', 404));
       return;
     }
-
     const response: DBMessageResponse = {
       message: 'User updated',
       user: {
         user_name: result.user_name,
         email: result.email,
-        id: result._id,
+        favourite_games: result.favourite_games || [],
         profile_image: result.profile_image,
-      },
-    };
-
-    res.json(response);
-  } catch (error) {
-    next(new CustomError((error as Error).message, 500));
-  }
-};
-
-// TODO: add function to change user name
-const userNamePut = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const userFromToken: OutputUser = res.locals.user as OutputUser;
-    let userId = userFromToken.id;
-    if (req.params.id && res.locals.user.role.includes('admin')) {
-      userId = req.params.id;
-    }
-
-    const user: User = req.body as User;
-
-    const result: User = (await userModel
-      .findByIdAndUpdate(userId, user, {new: true})
-      .select('-password -role')) as User;
-
-    if (!result) {
-      next(new CustomError('User not found', 404));
-      return;
-    }
-
-    const response: DBMessageResponse = {
-      message: 'Username updated',
-      user: {
-        user_name: result.user_name,
-        email: result.email,
         id: result._id,
       },
     };
@@ -170,6 +136,8 @@ const userDelete = async (req: Request, res: Response, next: NextFunction) => {
       user: {
         user_name: result.user_name,
         email: result.email,
+        profile_image: '',
+        favourite_games: [],
         id: result._id,
       },
     };
@@ -204,6 +172,8 @@ const userDeleteAsAdmin = async (
       user: {
         user_name: result.user_name,
         email: result.email,
+        profile_image: '',
+        favourite_games: [],
         id: result._id,
       },
     };
@@ -244,6 +214,8 @@ const userPutAsAdmin = async (
       user: {
         user_name: result.user_name,
         email: result.email,
+        favourite_games: result.favourite_games || [],
+        profile_image: result.profile_image,
         id: result._id,
       },
     };

@@ -12,6 +12,7 @@ interface OutputUser {
   id?: string;
   user_name: string;
   email: string;
+  favourite_games: string[];
   profile_image?: string;
 }
 
