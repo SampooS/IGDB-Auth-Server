@@ -6,13 +6,26 @@ import userModel from '../models/userModel';
 import bcrypt from 'bcrypt';
 import DBMessageResponse from '../../interfaces/DBMessageResponse';
 
+/**
+ * Create a salt for bcrypt hashing with a cost factor of 12.
+ */
 const salt = bcrypt.genSaltSync(12);
-// TODO: add function check, to check if the server is alive
+
+/**
+ * A simple check endpoint to verify server status.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ */
 const check = (req: Request, res: Response) => {
   res.json({message: 'Server up'});
 };
 
-// TODO: add function to get all users
+/**
+ * Get a list of users.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ */
 const userListGet = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await userModel.find().select('-password -role');
@@ -22,9 +35,14 @@ const userListGet = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// TODO: add function to get a user by id
+/**
+ * Get a specific user by ID.
+ * @param req - The Express request object with the user ID parameter.
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ */
 const userGet = async (
-  req: Request<{id: String}>,
+  req: Request<{id: string}>,
   res: Response,
   next: NextFunction
 ) => {
@@ -42,7 +60,12 @@ const userGet = async (
   }
 };
 
-// TODO: add function to create a user
+/**
+ * Create a new user.
+ * @param req - The Express request object with the user data.
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ */
 const userPost = async (
   req: Request<{}, {}, User>,
   res: Response,
@@ -82,7 +105,12 @@ const userPost = async (
   }
 };
 
-// TODO: add function to update a user
+/**
+ * Update an existing user's information.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ */
 const userPut = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userFromToken: OutputUser = res.locals.user as OutputUser;
@@ -120,7 +148,12 @@ const userPut = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// TODO: add function to delete a user
+/**
+ * Delete the currently authenticated user.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ */
 const userDelete = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userFromToken: OutputUser = res.locals?.user as OutputUser;
@@ -148,6 +181,12 @@ const userDelete = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+/**
+ * Delete a user as an admin.
+ * @param req - The Express request object with the user ID parameter.
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ */
 const userDeleteAsAdmin = async (
   req: Request,
   res: Response,
@@ -155,7 +194,6 @@ const userDeleteAsAdmin = async (
 ) => {
   try {
     const userId = req.params.id;
-    console.log('Helloo', res.locals.user.role);
     if (!res.locals.user.role.includes('admin')) {
       next(new CustomError('Unauthorized', 401));
       return;
@@ -184,6 +222,12 @@ const userDeleteAsAdmin = async (
   }
 };
 
+/**
+ * Update a user's information as an admin.
+ * @param req - The Express request object with the user ID parameter.
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ */
 const userPutAsAdmin = async (
   req: Request,
   res: Response,
@@ -226,7 +270,12 @@ const userPutAsAdmin = async (
   }
 };
 
-//TODO: add function to check if a token is valid
+/**
+ * Check the validity of the authentication token.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ */
 const checkToken = async (req: Request, res: Response, next: NextFunction) => {
   const userFromToken: OutputUser = res.locals.user as OutputUser;
   const message: DBMessageResponse = {
@@ -237,6 +286,7 @@ const checkToken = async (req: Request, res: Response, next: NextFunction) => {
   res.json(message);
 };
 
+// Export all the defined functions as module exports.
 export {
   userPost,
   userPut,
