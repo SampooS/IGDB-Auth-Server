@@ -7,6 +7,12 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import LoginMessageResponse from '../../interfaces/LoginMessageResponse';
 
+/**
+ * Handle user login by validating credentials and issuing a JWT token upon successful login.
+ * @param req - The Express request object with user credentials (email and password).
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ */
 const loginPost = async (
   req: Request<{}, {}, {email: string; password: string}>,
   res: Response,
@@ -61,4 +67,5 @@ const loginPost = async (
   }
 };
 
+// Export the loginPost function as a module export.
 export {loginPost};
