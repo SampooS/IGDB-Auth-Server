@@ -5,6 +5,7 @@ import {validationResult} from 'express-validator';
 import userModel from '../models/userModel';
 import bcrypt from 'bcrypt';
 import DBMessageResponse from '../../interfaces/DBMessageResponse';
+import jwt from 'jsonwebtoken';
 
 /**
  * Create a salt for bcrypt hashing with a cost factor of 12.
@@ -277,13 +278,34 @@ const userPutAsAdmin = async (
  * @param next - The next middleware function.
  */
 const checkToken = async (req: Request, res: Response, next: NextFunction) => {
-  const userFromToken: OutputUser = res.locals.user as OutputUser;
-  const message: DBMessageResponse = {
-    message: 'Token is valid',
-    user: userFromToken,
-  };
-
-  res.json(message);
+  const bearer = req.headers.authorization;
+  console.log(bearer);
+  if (!bearer) {
+    next(new CustomError('Unauthorized', 401));
+    return;
+  }
+  const token = bearer.split(' ')[1];
+  if (!token) {
+    next(new CustomError('Unauthorized', 401));
+    return;
+  }
+  const userFromToken: OutputUser = jwt.verify(
+    token,
+    process.env.JWT_SECRET as string
+  ) as OutputUser;
+  if (!userFromToken) {
+    next(new CustomError('Unauthorized', 401));
+    return;
+  }
+  const user = await userModel
+    .findById(userFromToken.id)
+    .select('-password -role -__v');
+  if (!user) {
+    next(new CustomError('Unauthorized', 401));
+    return;
+  }
+  res.locals.user = user;
+  res.json({message: 'Token valid'});
 };
 
 // Export all the defined functions as module exports.
