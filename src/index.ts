@@ -4,7 +4,7 @@ import mongoConnect from './utils/db';
 /**
  * Get the port from the environment variables or use a default port (3000).
  */
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 /**
  * Start the Express application and connect to the MongoDB database.
